@@ -57,24 +57,31 @@ const EditProfile = () => {
     });
 
     try {
-      const res = await API.put(`/auth/user`, dataToSend, {
+      const response = await API.put(`/auth/user`, dataToSend, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      if (res.status === 200) {
-        // Update local user profile on successful update
-        setUser({ ...user, ...formData });
+      if (response.status === 200) {
+        const { profilePhoto, ...otherFormData } = formData;
+        setUser({
+          ...user,
+          profilePhoto: response.data.data.profilePhoto,
+          ...otherFormData,
+        });
 
         localStorage.setItem(
           "userProfile",
-          JSON.stringify({ ...user, formData })
+          JSON.stringify({
+            ...user,
+            profilePhoto: response.data.data.profilePhoto,
+            ...otherFormData,
+          })
         );
 
         router.push("/profile");
       } else {
-        setError({ message: res.data.message });
+        setError({ message: response.data.message });
       }
     } catch (err) {
       console.error(err);

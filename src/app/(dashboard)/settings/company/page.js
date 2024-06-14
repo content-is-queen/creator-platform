@@ -69,7 +69,7 @@ const Company = () => {
         ...(profilePhoto && { organizationLogo: profilePhoto }),
       };
 
-      const response = await API.put("/admin/company", dataToSubmit, {
+      const response = await API.patch("/admin/company", dataToSubmit, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -77,18 +77,21 @@ const Company = () => {
       });
 
       if (response?.status === 200) {
-        setUser({ ...user, organizationName: formData.organizationName });
-        setSuccess({ message: "Company info updated successfully" });
-      } else {
-        setErrors({
-          message: response.message || "Something went wrong. Update failed.",
-        });
+        setUser({ ...user, ...formData });
+        localStorage.setItem(
+          "userProfile",
+          JSON.stringify({ ...user, ...formData })
+        );
+        setSuccess({ message: "Update complete" });
+        return;
       }
+
+      setErrors({
+        message: response.message || "Something went wrong. failed.",
+      });
     } catch (error) {
       setErrors({
-        message:
-          error.response?.data.message ||
-          "Something went wrong. Update failed.",
+        message: error.response?.data.message || "Something went wrong.",
       });
     } finally {
       setLoading(false);
